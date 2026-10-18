@@ -1,2 +1,82 @@
-# mananga-smartcalcu
-Calculadora inteligente Mananga
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Mananga SmartCalc</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:#f5f7fb;font-family:Arial,sans-serif;padding:20px}
+main{max-width:520px;margin:auto}
+h1{color:#f5c451;margin-bottom:6px}
+p{color:#b9c3d4;line-height:1.5}
+.card{background:#1c293b;padding:18px;border-radius:15px;margin-top:18px}
+label{display:block;margin-top:13px;font-size:14px;color:#dce5f2}
+input,select{width:100%;padding:13px;margin-top:6px;border-radius:8px;border:1px solid #46556b;background:#101827;color:white;font-size:16px}
+button{width:100%;padding:14px;margin-top:16px;border:0;border-radius:9px;background:#f5c451;color:#172033;font-weight:bold;font-size:16px}
+.result{font-size:25px;font-weight:bold;color:#f5c451;overflow-wrap:anywhere}
+.small{font-size:12px;color:#9ba9bd}
+</style>
+</head>
+<body>
+<main>
+<h1>Mananga SmartCalc</h1>
+<p>Calcula custos, vendas e lucro do teu negócio.</p>
+<div class="card">
+<h2>Dados do negócio</h2>
+<label>Moeda</label>
+<select id="currency">
+<option value="AOA">Kwanza (AOA)</option>
+<option value="USD">Dólar (USD)</option>
+<option value="EUR">Euro (EUR)</option>
+</select>
+<label>Quantidade de produtos vendidos</label>
+<input id="qty" type="number" min="0" value="10">
+<label>Preço de venda por unidade</label>
+<input id="price" type="number" min="0" step="any" value="5000">
+<label>Custo por unidade</label>
+<input id="cost" type="number" min="0" step="any" value="2500">
+<label>Outras despesas totais</label>
+<input id="expenses" type="number" min="0" step="any" value="5000">
+<button onclick="calculate()">Calcular resultados</button>
+</div>
+<div class="card">
+<h2>Os teus resultados</h2>
+<p>Receita total</p><div class="result" id="revenue">0</div>
+<p>Custos totais</p><div class="result" id="totalcost">0</div>
+<p>Lucro ou prejuízo</p><div class="result" id="profit">0</div>
+<p>Margem de lucro</p><div class="result" id="margin">0%</div>
+<p>Preço mínimo por unidade para não perder dinheiro</p><div class="result" id="breakEven">0</div>
+<button onclick="copySummary()">Copiar resumo</button>
+<p class="small">Ferramenta educativa. Os resultados são estimativas e não incluem impostos que não tenham sido introduzidos.</p>
+</div>
+</main>
+<script>
+function money(n){
+ const c=document.getElementById('currency').value;
+ try{return new Intl.NumberFormat('pt-PT',{style:'currency',currency:c,maximumFractionDigits:2}).format(n)}
+ catch(e){return n.toFixed(2)+' '+c}
+}
+function calculate(){
+ const q=Math.max(0,Number(document.getElementById('qty').value)||0);
+ const p=Math.max(0,Number(document.getElementById('price').value)||0);
+ const c=Math.max(0,Number(document.getElementById('cost').value)||0);
+ const e=Math.max(0,Number(document.getElementById('expenses').value)||0);
+ const revenue=q*p, total=q*c+e, profit=revenue-total;
+ document.getElementById('revenue').textContent=money(revenue);
+ document.getElementById('totalcost').textContent=money(total);
+ document.getElementById('profit').textContent=money(profit);
+ document.getElementById('margin').textContent=(revenue?((profit/revenue)*100).toFixed(2):'0.00')+'%';
+ document.getElementById('breakEven').textContent=money(q?(c+e/q):c);
+}
+function copySummary(){
+ const s='Mananga SmartCalc\nReceita: '+document.getElementById('revenue').textContent+'\nCustos: '+document.getElementById('totalcost').textContent+'\nLucro/prejuízo: '+document.getElementById('profit').textContent+'\nMargem: '+document.getElementById('margin').textContent;
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+ navigator.clipboard.writeText(s).then(()=>alert('Resumo copiado!')).catch(()=>alert(s));
+ }else{alert(s)}
+}
+calculate();
+</script>
+</body>
+</html>
